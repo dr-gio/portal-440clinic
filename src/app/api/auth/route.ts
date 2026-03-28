@@ -3,11 +3,12 @@ import { supabaseAdmin } from '@/lib/supabase'
 
 // GET /api/auth — lista usuarios activos (sin PINs)
 export async function GET() {
-  const { data } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin
     .from('portal_usuarios')
     .select('id, nombre, rol')
     .eq('activo', true)
     .order('nombre')
+  if (error) return NextResponse.json({ usuarios: [], error: error.message, hint: error.hint })
   return NextResponse.json({ usuarios: data || [] })
 }
 
