@@ -21,7 +21,7 @@ const ROL_LABELS: Record<string, string> = {
 
 export default function Portal({ usuario, onLogout }: Props) {
   const [tab, setTab] = useState('pacientes')
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen] = useState(false)
 
   const visibles = MODULES.filter(m => m.roles.includes(usuario.rol))
 

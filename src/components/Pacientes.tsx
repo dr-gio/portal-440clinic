@@ -5,10 +5,11 @@ import { Usuario } from '@/app/page'
 interface Paciente {
   cedula: string; nombre: string; telefono?: string; email?: string
   total_presupuesto?: number; total_pagado?: number
-  pagos?: any[]; documentos_paciente?: any[]
+  pagos?: DocItem[]; documentos_paciente?: DocItem[]
 }
 
 interface ChatMsg { role: 'user' | 'assistant'; content: string }
+interface DocItem { id: string; tipo_documento: string; nombre_archivo: string; url_archivo?: string; app_origen?: string; fecha_generacion: string }
 
 const fmt = (n: number) => '$' + Math.round(n || 0).toLocaleString('es-CO')
 const CARD = '#1a2a3a'
@@ -216,7 +217,7 @@ export default function Pacientes({ usuario }: { usuario: Usuario }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {!seleccionado.documentos_paciente?.length ? (
                     <p style={{ color: '#64748b', fontSize: '0.875rem', textAlign: 'center', padding: '2rem' }}>Sin documentos registrados</p>
-                  ) : seleccionado.documentos_paciente.map((d: any) => (
+                  ) : seleccionado.documentos_paciente.map((d: DocItem) => (
                     <div key={d.id} style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: '0.75rem 1rem', background: '#0d1b2a', borderRadius: 10, border: '1px solid ' + BORDER

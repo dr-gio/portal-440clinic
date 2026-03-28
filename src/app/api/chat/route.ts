@@ -22,7 +22,7 @@ INFORMACIÓN FINANCIERA:
 - Saldo pendiente: $${Number((paciente.total_presupuesto || 0) - (paciente.total_pagado || 0)).toLocaleString('es-CO')}
 - Pagos: ${JSON.stringify(paciente.pagos || [])}
 ` : ''}
-DOCUMENTOS: ${JSON.stringify((paciente.documentos_paciente || []).map((d: any) => ({ tipo: d.tipo_documento, fecha: d.fecha_generacion, nombre: d.nombre_archivo })))}
+DOCUMENTOS: ${JSON.stringify((paciente.documentos_paciente || []).map((d: { tipo_documento: string; fecha_generacion: string; nombre_archivo: string }) => ({ tipo: d.tipo_documento, fecha: d.fecha_generacion, nombre: d.nombre_archivo })))}
 
 INSTRUCCIONES:
 - Responde en español, de forma concisa y profesional
@@ -33,7 +33,7 @@ INSTRUCCIONES:
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 1024,
     system: systemPrompt,
-    messages: messages.map((m: any) => ({ role: m.role, content: m.content }))
+    messages: messages.map((m: { role: 'user' | 'assistant'; content: string }) => ({ role: m.role, content: m.content }))
   })
 
   return NextResponse.json({ ok: true, content: r.content[0].type === 'text' ? r.content[0].text : '' })
