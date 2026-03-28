@@ -224,6 +224,20 @@ const APPS = [
 
 function Inicio({ usuario, cardBg, border, textMain, textMut }: { usuario: Usuario; cardBg:string; border:string; textMain:string; textMut:string }) {
   const apps = APPS.filter(a => a.roles.includes(usuario.rol))
+
+  const abrirApp = async (app: typeof APPS[0]) => {
+    try {
+      const r = await fetch('/api/sso', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ portal_rol: usuario.rol, nombre: usuario.nombre }),
+      }).then(x => x.json())
+      window.open(`${app.url}?pt=${r.token}`, '_blank')
+    } catch {
+      window.open(app.url, '_blank')
+    }
+  }
+
   return (
     <div>
       {/* Saludo */}
@@ -259,15 +273,15 @@ function Inicio({ usuario, cardBg, border, textMain, textMut }: { usuario: Usuar
               <p style={{ fontWeight:700, color:textMain, fontSize:'1rem' }}>{app.label}</p>
               <p style={{ fontSize:'0.8rem', color:textMut, marginTop:3, lineHeight:1.5 }}>{app.desc}</p>
             </div>
-            <a href={app.url} target="_blank" rel="noreferrer" style={{
+            <button onClick={() => abrirApp(app)} style={{
               marginTop:'auto', display:'flex', alignItems:'center', justifyContent:'center', gap:6,
-              padding:'0.6rem 1rem', borderRadius:10, textDecoration:'none',
-              background: app.color+'15', border:'1px solid '+app.color+'40',
+              padding:'0.6rem 1rem', borderRadius:10, border:'none', cursor:'pointer',
+              background: app.color+'15', outline:'1px solid '+app.color+'40',
               color: app.color, fontSize:'0.85rem', fontWeight:600,
-              transition:'background 0.15s',
+              transition:'background 0.15s', fontFamily:'Outfit, sans-serif',
             }}>
               Abrir app →
-            </a>
+            </button>
           </div>
         ))}
       </div>
