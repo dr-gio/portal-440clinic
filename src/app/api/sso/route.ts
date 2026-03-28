@@ -23,10 +23,20 @@ export async function POST(req: Request) {
   return NextResponse.json({ token: data.token })
 }
 
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: CORS })
+}
+
 // GET /api/sso?token=xxx — valida token y lo marca como usado
 export async function GET(req: Request) {
   const token = new URL(req.url).searchParams.get('token')
-  if (!token) return NextResponse.json({ error: 'no token' }, { status: 400 })
+  if (!token) return NextResponse.json({ error: 'no token' }, { status: 400, headers: CORS })
 
   const client = db()
 
@@ -38,9 +48,9 @@ export async function GET(req: Request) {
     .gt('expires_at', new Date().toISOString())
     .maybeSingle()
 
-  if (error || !data) return NextResponse.json({ error: 'token inválido o expirado' }, { status: 401 })
+  if (error || !data) return NextResponse.json({ error: 'token inválido o expirado' }, { status: 401, headers: CORS })
 
   await client.from('portal_sesiones').update({ usado: true }).eq('token', token)
 
-  return NextResponse.json({ portal_rol: data.portal_rol, nombre: data.nombre })
+  return NextResponse.json({ portal_rol: data.portal_rol, nombre: data.nombre }, { headers: CORS })
 }
