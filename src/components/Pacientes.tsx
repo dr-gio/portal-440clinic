@@ -12,10 +12,11 @@ interface ChatMsg { role: 'user' | 'assistant'; content: string }
 interface DocItem { id: string; tipo_documento: string; nombre_archivo: string; url_archivo?: string; app_origen?: string; fecha_generacion: string }
 
 const fmt = (n: number) => '$' + Math.round(n || 0).toLocaleString('es-CO')
-const CARD = '#1a2a3a'
-const BORDER = '#2a4060'
 
-export default function Pacientes({ usuario }: { usuario: Usuario }) {
+export default function Pacientes({ usuario, theme }: { usuario: Usuario; theme: 'light'|'dark' }) {
+  const isDark = theme === 'dark'
+  const CARD = isDark ? '#1a2a3a' : '#ffffff'
+  const BORDER = isDark ? '#2a4060' : '#e2e8f0'
   const [busqueda, setBusqueda]   = useState('')
   const [lista, setLista]         = useState<Paciente[]>([])
   const [seleccionado, setSelec]  = useState<Paciente | null>(null)
