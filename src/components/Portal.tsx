@@ -183,9 +183,50 @@ export default function Portal({ usuario, onLogout, theme, onToggleTheme }: Prop
   )
 }
 
+const APPS = [
+  {
+    id: 'suite',
+    label: 'Suite Médica',
+    icon: '💊',
+    desc: 'Consentimientos, recetas, laboratorios, imágenes y más',
+    url: 'https://suite-medica-440.vercel.app',
+    color: '#10b981',
+    roles: ['dr_gio','suite','sharon'],
+  },
+  {
+    id: 'contabilidad',
+    label: 'Contabilidad',
+    icon: '💰',
+    desc: 'Pagos, SIIGO, gastos, tesorería y comisiones',
+    url: 'https://contabilidad-440.vercel.app',
+    color: '#f59e0b',
+    roles: ['dr_gio','contabilidad'],
+  },
+  {
+    id: 'agenda',
+    label: 'Agenda Pro',
+    icon: '📅',
+    desc: 'Citas, agenda médica y gestión de calendario',
+    url: 'https://agenda-pro-max-440.vercel.app',
+    color: '#8b5cf6',
+    roles: ['dr_gio','suite','asesora','sharon','contabilidad'],
+  },
+  {
+    id: 'bot',
+    label: 'Bot Telegram',
+    icon: '🤖',
+    desc: 'Registro de pagos y documentos por Telegram',
+    url: 'https://t.me/clinic440_bot',
+    color: '#2563eb',
+    roles: ['dr_gio','suite','asesora','sharon','contabilidad'],
+  },
+]
+
 function Inicio({ usuario, cardBg, border, textMain, textMut }: { usuario: Usuario; cardBg:string; border:string; textMain:string; textMut:string }) {
+  const apps = APPS.filter(a => a.roles.includes(usuario.rol))
   return (
     <div>
+      {/* Saludo */}
       <div style={{ marginBottom:'2rem' }}>
         <h1 style={{ fontSize:'1.5rem', fontWeight:700, color:textMain, letterSpacing:'-0.5px' }}>
           Bienvenido, {usuario.nombre} 👋
@@ -194,19 +235,39 @@ function Inicio({ usuario, cardBg, border, textMain, textMut }: { usuario: Usuar
           {new Date().toLocaleDateString('es-CO',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}
         </p>
       </div>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px,1fr))', gap:'1rem' }}>
-        {[
-          { label:'Portal Clínico Unificado', desc:'Acceso centralizado a toda la información de 440 Clinic', icon:'🏥', color:'#2563eb' },
-          { label:'Base de datos unificada', desc:'Pacientes, documentos y finanzas en un solo lugar', icon:'🗃️', color:'#10b981' },
-          { label:'Chat IA por paciente', desc:'Consulta el expediente completo con inteligencia artificial', icon:'🤖', color:'#8b5cf6' },
-        ].map(c => (
-          <div key={c.label} style={{ background:cardBg, border:'1px solid '+border, borderRadius:14, padding:'1.25rem' }}>
+
+      {/* Apps */}
+      <p style={{ fontSize:'0.75rem', fontWeight:600, color:textMut, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:'0.75rem' }}>
+        Tus aplicaciones
+      </p>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(240px,1fr))', gap:'1rem' }}>
+        {apps.map(app => (
+          <div key={app.id} style={{
+            background: cardBg, border:'1px solid '+border, borderRadius:16,
+            padding:'1.5rem', display:'flex', flexDirection:'column', gap:'0.75rem',
+            transition:'transform 0.15s, box-shadow 0.15s',
+          }}
+            onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform='translateY(-2px)'; (e.currentTarget as HTMLDivElement).style.boxShadow='0 8px 24px rgba(0,0,0,0.15)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform=''; (e.currentTarget as HTMLDivElement).style.boxShadow='' }}
+          >
             <div style={{
-              width:44, height:44, borderRadius:10, marginBottom:'1rem',
-              background: c.color+'20', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.4rem'
-            }}>{c.icon}</div>
-            <p style={{ fontWeight:600, color:textMain, fontSize:'0.9rem' }}>{c.label}</p>
-            <p style={{ fontSize:'0.8rem', color:textMut, marginTop:'0.25rem' }}>{c.desc}</p>
+              width:52, height:52, borderRadius:14,
+              background: app.color+'1a', border:'1px solid '+app.color+'33',
+              display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.6rem'
+            }}>{app.icon}</div>
+            <div>
+              <p style={{ fontWeight:700, color:textMain, fontSize:'1rem' }}>{app.label}</p>
+              <p style={{ fontSize:'0.8rem', color:textMut, marginTop:3, lineHeight:1.5 }}>{app.desc}</p>
+            </div>
+            <a href={app.url} target="_blank" rel="noreferrer" style={{
+              marginTop:'auto', display:'flex', alignItems:'center', justifyContent:'center', gap:6,
+              padding:'0.6rem 1rem', borderRadius:10, textDecoration:'none',
+              background: app.color+'15', border:'1px solid '+app.color+'40',
+              color: app.color, fontSize:'0.85rem', fontWeight:600,
+              transition:'background 0.15s',
+            }}>
+              Abrir app →
+            </a>
           </div>
         ))}
       </div>
