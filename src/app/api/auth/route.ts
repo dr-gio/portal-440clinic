@@ -18,8 +18,8 @@ export async function POST(req: Request) {
       .eq('activo', true)
       .maybeSingle()
 
-    if (error) return NextResponse.json({ ok: false, error: error.message })
-    if (!data) return NextResponse.json({ ok: false, error: 'PIN incorrecto' })
+    if (error) return NextResponse.json({ ok: false, error: error.message, code: error.code })
+    if (!data) return NextResponse.json({ ok: false, error: 'PIN incorrecto', pin_recibido: pin.toString() })
     return NextResponse.json({ ok: true, usuario: data })
   } catch (e: unknown) {
     return NextResponse.json({ ok: false, error: String(e) })
