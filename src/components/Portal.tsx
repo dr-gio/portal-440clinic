@@ -226,15 +226,18 @@ function Inicio({ usuario, cardBg, border, textMain, textMut }: { usuario: Usuar
   const apps = APPS.filter(a => a.roles.includes(usuario.rol))
 
   const abrirApp = async (app: typeof APPS[0]) => {
+    // Abrir ventana ANTES del fetch — el popup blocker solo permite
+    // window.open() en contexto síncrono del click
+    const win = window.open('about:blank', '_blank')
     try {
       const r = await fetch('/api/sso', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ portal_rol: usuario.rol, nombre: usuario.nombre }),
       }).then(x => x.json())
-      window.open(`${app.url}?pt=${r.token}`, '_blank')
+      if (win) win.location.href = `${app.url}?pt=${r.token}`
     } catch {
-      window.open(app.url, '_blank')
+      if (win) win.location.href = app.url
     }
   }
 
