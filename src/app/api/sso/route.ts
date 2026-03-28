@@ -1,12 +1,19 @@
 import { NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
+
+function db() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
 
 // POST /api/sso — crea token SSO para el usuario autenticado
 export async function POST(req: Request) {
   const { portal_rol, nombre } = await req.json()
   if (!portal_rol || !nombre) return NextResponse.json({ error: 'missing fields' }, { status: 400 })
 
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await db()
     .from('portal_sesiones')
     .insert({ portal_rol, nombre })
     .select('token')
@@ -21,7 +28,9 @@ export async function GET(req: Request) {
   const token = new URL(req.url).searchParams.get('token')
   if (!token) return NextResponse.json({ error: 'no token' }, { status: 400 })
 
-  const { data, error } = await supabaseAdmin
+  const client = db()
+
+  const { data, error } = await client
     .from('portal_sesiones')
     .select('*')
     .eq('token', token)
@@ -31,8 +40,7 @@ export async function GET(req: Request) {
 
   if (error || !data) return NextResponse.json({ error: 'token inválido o expirado' }, { status: 401 })
 
-  // Marcar como usado (single-use)
-  await supabaseAdmin.from('portal_sesiones').update({ usado: true }).eq('token', token)
+  await client.from('portal_sesiones').update({ usado: true }).eq('token', token)
 
   return NextResponse.json({ portal_rol: data.portal_rol, nombre: data.nombre })
 }

@@ -1,14 +1,22 @@
 import { NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
+
+// Usa anon key — portal_usuarios no tiene RLS
+function db() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
 
 // GET /api/auth — lista usuarios activos (sin PINs)
 export async function GET() {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await db()
     .from('portal_usuarios')
     .select('id, nombre, rol')
     .eq('activo', true)
     .order('nombre')
-  if (error) return NextResponse.json({ usuarios: [], error: error.message, hint: error.hint })
+  if (error) return NextResponse.json({ usuarios: [], error: error.message })
   return NextResponse.json({ usuarios: data || [] })
 }
 
@@ -18,13 +26,12 @@ export async function POST(req: Request) {
     const { pin, userId } = await req.json()
     if (!pin) return NextResponse.json({ ok: false, error: 'PIN requerido' })
 
-    let query = supabaseAdmin
+    let query = db()
       .from('portal_usuarios')
       .select('*')
       .eq('pin', pin.toString())
       .eq('activo', true)
 
-    // Si viene userId, valida contra ese usuario específico
     if (userId) query = query.eq('id', userId)
 
     const { data, error } = await query.maybeSingle()
