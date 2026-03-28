@@ -10,9 +10,10 @@ export interface Usuario {
 }
 
 export default function Home() {
-  const [usuario, setUsuario] = useState<Usuario | null>(null)
-  const [theme, setTheme]     = useState<'light'|'dark'>('dark')
-  const [splash, setSplash]   = useState(true)
+  const [usuario,    setUsuario]    = useState<Usuario | null>(null)
+  const [theme,      setTheme]      = useState<'light'|'dark'>('dark')
+  const [showIntro,  setShowIntro]  = useState(false)
+  const [pendingUser, setPendingUser] = useState<Usuario | null>(null)
 
   useEffect(() => {
     const saved = sessionStorage.getItem('portal_user')
@@ -29,11 +30,26 @@ export default function Home() {
     document.documentElement.setAttribute('data-theme', next)
   }
 
-  const handleLogin  = (u: Usuario) => { sessionStorage.setItem('portal_user', JSON.stringify(u)); setUsuario(u) }
-  const handleLogout = () => { sessionStorage.removeItem('portal_user'); setUsuario(null) }
-  const handleSplashDone = useCallback(() => setSplash(false), [])
+  // PIN correcto → guardar usuario pendiente y mostrar video
+  const handleLogin = (u: Usuario) => {
+    sessionStorage.setItem('portal_user', JSON.stringify(u))
+    setPendingUser(u)
+    setShowIntro(true)
+  }
 
-  if (splash) return <SplashScreen onDone={handleSplashDone} />
-  if (!usuario) return <PinScreen onLogin={handleLogin} theme={theme} onToggleTheme={toggleTheme} />
+  // Video termina → entrar al portal
+  const handleIntroDone = useCallback(() => {
+    setShowIntro(false)
+    setUsuario(pendingUser)
+  }, [pendingUser])
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('portal_user')
+    setUsuario(null)
+    setPendingUser(null)
+  }
+
+  if (showIntro)  return <SplashScreen onDone={handleIntroDone} />
+  if (!usuario)   return <PinScreen onLogin={handleLogin} theme={theme} onToggleTheme={toggleTheme} />
   return <Portal usuario={usuario} onLogout={handleLogout} theme={theme} onToggleTheme={toggleTheme} />
 }
